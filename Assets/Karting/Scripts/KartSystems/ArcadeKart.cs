@@ -339,7 +339,7 @@ namespace KartGame.KartSystems
             for (int i = 0; i < m_Inputs.Length; i++)
             {
                 Input = m_Inputs[i].GenerateInput();
-                WantsToDrift = Input.Brake && Vector3.Dot(Rigidbody.linearVelocity, transform.forward) > 0.0f;
+                WantsToDrift = Input.Drifting;
             }
         }
 
@@ -377,6 +377,11 @@ namespace KartGame.KartSystems
             {
                 Rigidbody.linearVelocity += Physics.gravity * Time.fixedDeltaTime * m_FinalStats.AddedGravity;
             }
+        }
+
+        public void SetDrift(bool isDrifting)
+        {
+            this.IsDrifting = isDrifting;
         }
 
         public void Reset()
@@ -524,7 +529,7 @@ namespace KartGame.KartSystems
                 // Drift Management
                 if (!IsDrifting)
                 {
-                    if ((WantsToDrift || isBraking) && currentSpeed > maxSpeed * MinSpeedPercentToFinishDrift)
+                    if (WantsToDrift)
                     {
                         IsDrifting = true;
                         m_DriftTurningPower = turningPower + (Mathf.Sign(turningPower) * DriftAdditionalSteer);
@@ -532,7 +537,13 @@ namespace KartGame.KartSystems
 
                         ActivateDriftVFX(true);
                     }
+                    else
+                    {
+                        IsDrifting = false;
+                    }
                 }
+
+
 
                 if (IsDrifting)
                 {
@@ -554,11 +565,12 @@ namespace KartGame.KartSystems
                     else if (turnInputAbs >= k_NullInput && currentSpeed > maxSpeed * MinSpeedPercentToFinishDrift)
                         canEndDrift = false;
 
-                    if (canEndDrift || currentSpeed < k_NullSpeed)
+                    if (!WantsToDrift)
                     {
                         // No Input, and car aligned with speed direction => Stop the drift
+                        //IsDrifting = false;
+                        //m_CurrentGrip = m_FinalStats.Grip;
                         IsDrifting = false;
-                        m_CurrentGrip = m_FinalStats.Grip;
                     }
 
                 }
