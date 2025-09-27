@@ -127,11 +127,24 @@ public abstract class Objective : MonoBehaviour
         // removes the pickup from the list, so that we can keep track of how many are left on the map
         if (pickupCollected.gameMode == GameMode.Laps)
         {
-            pickupCollected.active = false;
 
-            LapObject lapObject = (LapObject) pickupCollected;
+
+            LapObject lapObject = (LapObject)pickupCollected;
+
+            
 
             if (!lapObject.finishLap) return;
+
+            if (lapObject.LapsCount <= 0)
+            {
+                pickupCollected.active = false;
+            }
+            else
+            {
+                pickupCollected.active = true;
+
+                lapObject.LapsCount -= 1;
+            }
 
             if (!lapObject.lapOverNextPass)
             {

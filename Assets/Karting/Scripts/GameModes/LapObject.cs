@@ -9,6 +9,8 @@ public class LapObject : TargetObject
     [Tooltip("Is this the first/last lap object?")]
     public bool finishLap;
 
+    public int LapsCount;
+
     [HideInInspector]
     public bool lapOverNextPass;
 

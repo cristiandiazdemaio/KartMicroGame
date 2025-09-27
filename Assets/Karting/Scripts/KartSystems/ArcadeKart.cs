@@ -20,7 +20,7 @@ namespace KartGame.KartSystems
         public struct Stats
         {
             [Header("Movement Settings")]
-            [Min(0.001f), Tooltip("Top speed attainable when moving forward.")]
+            [Min(-100f), Tooltip("Top speed attainable when moving forward.")]
             public float TopSpeed;
 
             [Tooltip("How quickly the kart reaches top speed.")]
@@ -33,7 +33,7 @@ namespace KartGame.KartSystems
             public float ReverseAcceleration;
 
             [Tooltip("How quickly the kart starts accelerating from 0. A higher number means it accelerates faster sooner.")]
-            [Range(0.2f, 1)]
+            [Range(-1f, 1)]
             public float AccelerationCurve;
 
             [Tooltip("How quickly the kart slows down when the brake is applied.")]
@@ -42,7 +42,7 @@ namespace KartGame.KartSystems
             [Tooltip("How quickly the kart will reach a full stop when no inputs are made.")]
             public float CoastingDrag;
 
-            [Range(0.0f, 1.0f)]
+            [Range(-1.0f, 1.0f)]
             [Tooltip("The amount of side-to-side friction.")]
             public float Grip;
 
@@ -172,8 +172,10 @@ namespace KartGame.KartSystems
 
         // can the kart move?
         bool m_CanMove = true;
-        List<StatPowerup> m_ActivePowerupList = new List<StatPowerup>();
-        ArcadeKart.Stats m_FinalStats;
+        [Header("ACTIVE POWER UPS VIEWER")]
+        [SerializeField] List<StatPowerup> m_ActivePowerupList = new List<StatPowerup>();
+        [Header("FINAL STATS VIEWER")]
+        [SerializeField] ArcadeKart.Stats m_FinalStats;
 
         Quaternion m_LastValidRotation;
         Vector3 m_LastValidPosition;
@@ -184,6 +186,12 @@ namespace KartGame.KartSystems
         public void AddPowerup(StatPowerup statPowerup) => m_ActivePowerupList.Add(statPowerup);
         public void SetCanMove(bool move) => m_CanMove = move;
         public float GetMaxSpeed() => Mathf.Max(m_FinalStats.TopSpeed, m_FinalStats.ReverseSpeed);
+
+
+        public void RemovePowerUp(StatPowerup statPowerup)
+        {
+            m_ActivePowerupList.Remove(statPowerup);
+        }
 
         private void ActivateDriftVFX(bool active)
         {
@@ -556,7 +564,11 @@ namespace KartGame.KartSystems
                 }
 
                 // rotate our velocity based on current steer value
-                Rigidbody.linearVelocity = Quaternion.AngleAxis(turningPower * Mathf.Sign(localVel.z) * velocitySteering * m_CurrentGrip * Time.fixedDeltaTime, transform.up) * Rigidbody.linearVelocity;
+                float gripToUse = IsDrifting ? m_CurrentGrip : m_FinalStats.Grip;
+                Rigidbody.linearVelocity = Quaternion.AngleAxis(
+                    turningPower * Mathf.Sign(localVel.z) * velocitySteering * gripToUse * Time.fixedDeltaTime,
+                    transform.up
+                ) * Rigidbody.linearVelocity;
             }
             else
             {
