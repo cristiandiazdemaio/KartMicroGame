@@ -157,7 +157,7 @@ namespace KartGame.KartSystems
         // the input sources that can control the kart
         IInput[] m_Inputs;
 
-        const float k_NullInput = 0.01f;
+        const float k_NullInput = 0.001f;
         const float k_NullSpeed = 0.01f;
         Vector3 m_VerticalReference = Vector3.up;
 
